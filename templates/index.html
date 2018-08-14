@@ -3,13 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <title>Z-Pool</title>
+    <style>
+        div {
+            margin: 15px;
+        }
+    </style>
 </head>
 <body>
-<h1>Mining pool of Z</h1>
 <div>
-    I have released three new crypto coins! They are MD5 coin, SHA1 coin and SHA256 coin.
-    This is my mining pool for these coins. I know you want the flag, but please mine a block for me :)
-    There are three flags in total, one flag for one coin.
+    <h1>Mining pool of Z</h1>
+</div>
+<div>
+    大家好，我是 Z 同学。本周起，我的矿池正式上线，在此隆重推出三种全新电子货币：MD5 coin、SHA1 coin 和 SHA256 coin，
+    未来还可能推出 CRC32 coin（大雾）。为了方便同学们帮我挖矿，我还开发了浏览器挖矿功能，点击下面的开始按钮即可挖矿。
+    想获得 flag？先帮我挖出来一个块再说吧~ 哦对了，三种币分别对应三个 flag 哦~
 </div>
 <div>
     <select id="coin">
@@ -17,8 +24,8 @@
         <option value="1">SHA1 coin</option>
         <option value="2">SHA256 coin</option>
     </select>
-    <button type="button" onclick="start()" id="startbutton">Start mining!</button>
-    <button type="button" onclick="stop()" id="stopbutton" disabled>Stop mining!</button>
+    <button type="button" onclick="start()" id="startbutton">开始挖矿</button>
+    <button type="button" onclick="stop()" id="stopbutton" disabled>停止挖矿</button>
 </div>
 <div>
     <textarea id="status" readonly rows="20" style="width: 100%; font-family: monospace;"></textarea>

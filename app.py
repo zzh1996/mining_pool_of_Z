@@ -6,6 +6,8 @@ import time
 
 from flask import Flask, session, render_template, jsonify, request
 
+# TODO: logging
+
 app = Flask(__name__)
 
 suffix_lengths = [16, 4, 1]
