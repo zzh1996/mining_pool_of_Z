@@ -3,11 +3,12 @@ import hashlib
 import random
 import string
 import time
+import logging
+import uuid
 
-
+from logging.handlers import RotatingFileHandler
 from flask import Flask, session, render_template, jsonify, request
-
-# TODO: logging
+from functools import wraps
 
 app = Flask(__name__)
 
@@ -18,18 +19,47 @@ flags = ['flag{md5_7cfa0da2c09776ae}',
          'flag{sha256_02938baf7abc9cd3}']
 
 
+def userid():
+    if 'uid' not in session:
+        session['uid'] = uuid.uuid4()
+    return session['uid']
+
+
+def log(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        r = f(*args, **kwargs)
+
+        form_repr = []
+        for k, v in request.form.items():
+            if len(v) > 1024:
+                form_repr.append((k, v[:1024] + '...'))
+            else:
+                form_repr.append((k, v))
+
+        app.logger.info('%s: user=%s data=%s result=%s',
+                        request.full_path,
+                        userid(),
+                        form_repr,
+                        r.get_data()
+                        )
+        return r
+
+    return wrapper
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
 
 
 @app.route('/getjob', methods=['POST'])
+@log
 def getjob():
     suffix = ''.join([random.choice(string.ascii_letters + string.digits) for _ in range(max(suffix_lengths))])
     expire = time.time() + 60
     session['suffix'] = suffix
     session['expire'] = expire
-    app.logger.info('suffix=%s, expire=%s', suffix, expire)
     return jsonify({
         'suffix': suffix,
         'expire': expire
@@ -50,6 +80,7 @@ def difficulty(nonce1, nonce2, algo):
 
 
 @app.route('/submitjob', methods=['POST'])
+@log
 def submitjob():
     try:
         nonce1 = base64.b64decode(request.form['nonce1'])
@@ -98,5 +129,11 @@ def submitjob():
 
 
 if __name__ == '__main__':
+    handler = RotatingFileHandler('app.log', maxBytes=1024 * 1024 * 100, backupCount=100)
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('[%(asctime)s] %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    app.logger.addHandler(handler)
+    app.logger.setLevel(logging.INFO)
     app.secret_key = '7ed1886a19c920239f3230487573ae94'
     app.run(threaded=True)
